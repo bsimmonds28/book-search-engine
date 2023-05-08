@@ -7,41 +7,17 @@ import {
   Col
 } from 'react-bootstrap';
 
+import { useQuery, useMutation } from "@apollo/client";
 import { GET_ME } from '../utils/queries';
 import { DELETE_BOOK } from '../utils/mutations';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
-  const [userData, setUserData] = useState({});
-
-  // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
-
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-        if (!token) {
-          return false;
-        }
-
-        const response = await GET_ME(token);
-
-        if (!response.ok) {
-          throw new Error('something went wrong!');
-        }
-
-        const user = await response.json();
-        setUserData(user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    getUserData();
-  }, [userDataLength]);
+  const {loading, data} = useQuery(GET_ME);
+  const [deleteBook, {error}] = useMutation(DELETE_BOOK);
+  
+  const userData = data?.me || {};
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
@@ -52,14 +28,13 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await DELETE_BOOK(bookId, token);
+      const {data} = await deleteBook({variables: {bookId}});
 
-      if (!response.ok) {
+      if (!data) {
         throw new Error('something went wrong!');
       }
 
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
+      userData.savedBooks = data.deleteBook.savedBooks;
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
@@ -68,7 +43,7 @@ const SavedBooks = () => {
   };
 
   // if data isn't here yet, say so
-  if (!userDataLength) {
+  if (loading) {
     return <h2>LOADING...</h2>;
   }
 
