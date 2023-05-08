@@ -25,11 +25,13 @@ const userSchema = new Schema(
     savedBooks: [bookSchema],
   },
   // set this to use virtual below
+  /*
   {
     toJSON: {
       virtuals: true,
     },
   }
+  */
 );
 
 // hash user password
