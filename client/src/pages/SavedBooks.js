@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Container,
   Card,
@@ -11,7 +11,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { GET_ME } from '../utils/queries';
 import { DELETE_BOOK } from '../utils/mutations';
 import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
+import { deleteBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
   const {loading, data} = useQuery(GET_ME);
@@ -36,7 +36,7 @@ const SavedBooks = () => {
 
       userData.savedBooks = data.deleteBook.savedBooks;
       // upon success, remove book's id from localStorage
-      removeBookId(bookId);
+      deleteBookId(bookId);
     } catch (err) {
       console.error(err);
     }
