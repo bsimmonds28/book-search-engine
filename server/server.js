@@ -11,7 +11,9 @@ const app = express();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: authMiddleware
+  context: authMiddleware,
+  cacheControl: { defaultMaxAge: 600 },
+  cache: "bounded",
 });
 
 app.use(express.urlencoded({ extended: true }));
